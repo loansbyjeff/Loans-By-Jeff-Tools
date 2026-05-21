@@ -1,54 +1,266 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card APR Finder</title>
+    <style>
+        :root {
+            --primary-green: #0F5132;
+            --dark-slate: #2D3748;
+            --bg-light: #F5F6F8;
+            --card-bg: #F8F9FA;
+            --text-muted: #718096;
+            --result-dark: #2D3748;
+            --accent-green: #48BB78;
+        }
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+        .responsive-wrapper {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            margin: 16px;
+            box-sizing: border-box;
+        }
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/Loans-By-Jeff-Tools/">
+        .app-container {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+        }
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+        /* Mutual of Omaha Mortgage Typography Header */
+        .branding-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .brand-main {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--dark-slate);
+            letter-spacing: -0.5px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .brand-sub {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--primary-green);
+            letter-spacing: 5px;
+            margin: 2px 0 0 0;
+            text-indent: 5px;
+        }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="nanochat">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+        .app-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dark-slate);
+            text-align: center;
+            margin: 0 0 24px 0;
+        }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+        /* Form Configuration Panels */
+        .input-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .input-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .input-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-green);
+            margin-bottom: 8px;
+        }
 
-  <title>nanochat</title>
-  <link rel="manifest" href="manifest.json">
+        /* Styled Slider Bars */
+        .slider-input {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #E2E8F0;
+            outline: none;
+            margin: 12px 0;
+        }
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-green);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .slider-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #A0AEC0;
+        }
+
+        /* Result Panel Styling */
+        .result-panel {
+            background-color: var(--result-dark);
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            margin-top: 12px;
+            border: 1.5px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .result-title {
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: #A0AEC0;
+        }
+        .result-apr {
+            font-size: 42px;
+            font-weight: bold;
+            color: var(--accent-green);
+            margin: 6px 0;
+        }
+        .result-note {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Error States */
+        .result-panel.error {
+            background-color: #FFF5F5;
+            border-color: #FEB2B2;
+        }
+        .result-panel.error .result-title, .result-panel.error .result-note, .result-panel.error .result-apr {
+            color: #C53030;
+        }
+
+        .footnote {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.4;
+            margin-top: 32px;
+        }
+    </style>
 </head>
 <body>
-  <script>
-  window.addEventListener('load', function(ev) {
-    // Force Flutter to boot up using the standard HTML renderer instead of CanvasKit
-    _flutter.loader.loadEntrypoint({
-      serviceWorker: {
-        serviceWorkerVersion: serviceWorkerVersion,
-      },
-      onEntrypointLoaded: function(engineInitializer) {
-        engineInitializer.initializeEngine({
-          webRenderer: "html"
-        }).then(function(appRunner) {
-          appRunner.runApp();
-        });
-      }
-    });
-  });
+
+<div class="responsive-wrapper">
+    <div class="app-container">
+        
+        <!-- Corporate Identification -->
+        <div class="branding-header">
+            <div class="brand-main">
+                <span style="font-size: 22px;">🏛️</span> MUTUALofOMAHA
+            </div>
+            <div class="brand-sub">MORTGAGE</div>
+        </div>
+
+        <div class="app-title">Credit Card APR Finder</div>
+
+        <!-- Metric 1: Total Balance -->
+        <div class="input-card">
+            <div class="input-label">Total Credit Card Balance ($)</div>
+            <div class="input-value" id="balanceDisplay">$5,000</div>
+            <input type="range" id="balanceSlider" class="slider-input" min="500" max="20000" step="100" value="5000">
+            <div class="slider-footer">
+                <span>$500</span>
+                <span>$20,000+</span>
+            </div>
+        </div>
+
+        <!-- Metric 2: Minimum Monthly Payment -->
+        <div class="input-card">
+            <div class="input-label">Minimum Payment Required ($)</div>
+            <div class="input-value" id="paymentDisplay">$150</div>
+            <input type="range" id="paymentSlider" class="slider-input" min="25" max="1000" step="5" value="150">
+            <div class="slider-footer">
+                <span>$25</span>
+                <span>$1,000+</span>
+            </div>
+        </div>
+
+        <!-- Output Metric Terminal Box -->
+        <div class="result-panel" id="resultCard">
+            <div class="result-title" id="resultTitle">ESTIMATED ANNUAL APR</div>
+            <div class="result-apr" id="aprDisplay">24.00%</div>
+            <div class="result-note" id="resultNote">based on the current inputs</div>
+        </div>
+
+        <!-- Footnote Asset Signature Details -->
+        <div class="footnote">
+            * Created by Jeff Homolak. Assumptions include a 1% balance + interest formula.
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const balanceSlider = document.getElementById('balanceSlider');
+    const paymentSlider = document.getElementById('paymentSlider');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const paymentDisplay = document.getElementById('paymentDisplay');
+    const resultCard = document.getElementById('resultCard');
+    const aprDisplay = document.getElementById('aprDisplay');
+    const resultNote = document.getElementById('resultNote');
+
+    function formatCurrency(val) {
+        return '$' + parseFloat(val).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function calculateWebAPR() {
+        const balance = parseFloat(balanceSlider.value);
+        const payment = parseFloat(paymentSlider.value);
+
+        // UI Text updates
+        balanceDisplay.innerText = formatCurrency(balance);
+        paymentDisplay.innerText = formatCurrency(payment);
+
+        // Core Mathematical Extraction Layer
+        const principalDeduction = balance * 0.01;
+        const interestDifference = payment - principalDeduction;
+
+        if (interestDifference > 0) {
+            const calculatedApr = (interestDifference / balance) * 12 * 100;
+            aprDisplay.innerText = calculatedApr.toFixed(2) + '%';
+            resultNote.innerText = 'based on the current inputs';
+            resultCard.classList.remove('error');
+        } else {
+            aprDisplay.innerText = 'Input Low';
+            resultNote.innerText = 'Increase minimum payment';
+            resultCard.classList.add('error');
+        }
+    }
+
+    balanceSlider.addEventListener('input', calculateWebAPR);
+    paymentSlider.addEventListener('input', calculateWebAPR);
 </script>
 
 </body>
