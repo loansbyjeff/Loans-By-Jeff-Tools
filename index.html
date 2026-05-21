@@ -6,18 +6,19 @@
     <title>Credit Card APR Finder</title>
     <style>
         :root {
-            --primary-green: #0F5132;
-            --dark-slate: #2D3748;
-            --bg-light: #F5F6F8;
-            --card-bg: #F8F9FA;
-            --text-muted: #718096;
-            --result-dark: #2D3748;
-            --accent-green: #48BB78;
+            --bg-dark: #0F172A;          /* Deep premium slate banking background */
+            --panel-bg: #1E293B;         /* Dark grey container panels */
+            --accent-green: #10B981;     /* High-contrast neon-emerald branding green */
+            --text-main: #F8FAFC;        /* Crisp white for primary headings */
+            --text-muted: #94A3B8;       /* Soft grey for descriptive labels */
+            --result-dark: #020617;      /* Solid dark obsidian for the output window */
+            --error-red: #EF4444;        /* Crimson warning accent */
+            --error-bg: #7F1D1D;         /* Deep burgundy warning panel fill */
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-light);
+            background-color: var(--bg-dark);
             margin: 0;
             padding: 0;
             display: flex;
@@ -29,11 +30,12 @@
         .responsive-wrapper {
             width: 100%;
             max-width: 450px;
-            background: white;
+            background: #111827;         /* Sleek smartphone-style container */
             border-radius: 24px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
             margin: 16px;
             box-sizing: border-box;
+            border: 1px solid #1F2937;
         }
 
         .app-container {
@@ -42,15 +44,15 @@
             flex-direction: column;
         }
 
-        /* Mutual of Omaha Mortgage Typography Header */
+        /* Corporate Identity Header Styling */
         .branding-header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
         .brand-main {
             font-size: 20px;
             font-weight: 800;
-            color: var(--dark-slate);
+            color: var(--text-main);
             letter-spacing: -0.5px;
             margin: 0;
             display: flex;
@@ -61,112 +63,126 @@
         .brand-sub {
             font-size: 11px;
             font-weight: bold;
-            color: var(--primary-green);
+            color: var(--accent-green);
             letter-spacing: 5px;
-            margin: 2px 0 0 0;
+            margin: 4px 0 0 0;
             text-indent: 5px;
         }
 
         .app-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
-            color: var(--dark-slate);
+            color: var(--text-main);
             text-align: center;
             margin: 0 0 24px 0;
         }
 
-        /* Form Configuration Panels */
+        /* Modernized Banking Dashboard Modules */
         .input-card {
-            background-color: var(--card-bg);
+            background-color: var(--panel-bg);
             border-radius: 16px;
-            padding: 16px;
+            padding: 18px;
             margin-bottom: 16px;
+            border: 1px solid #334155;
         }
         .input-label {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-muted);
-            font-weight: 500;
-            margin-bottom: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
         .input-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--primary-green);
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
             margin-bottom: 8px;
         }
 
-        /* Styled Slider Bars */
+        /* Premium Dark Range Sliders */
         .slider-input {
             -webkit-appearance: none;
             width: 100%;
             height: 6px;
             border-radius: 3px;
-            background: #E2E8F0;
+            background: #334155;
             outline: none;
-            margin: 12px 0;
+            margin: 14px 0;
         }
         .slider-input::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            background: var(--primary-green);
+            background: var(--accent-green);
             cursor: pointer;
-            transition: transform 0.1s;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+            transition: transform 0.1s, background-color 0.1s;
         }
         .slider-input::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
+            transform: scale(1.15);
+            background: #34D399;
         }
         .slider-footer {
             display: flex;
             justify-content: space-between;
             font-size: 12px;
-            color: #A0AEC0;
+            color: var(--text-muted);
+            font-weight: 500;
         }
 
-        /* Result Panel Styling */
+        /* Digital Statement Output Terminal Box */
         .result-panel {
             background-color: var(--result-dark);
             border-radius: 16px;
-            padding: 20px 16px;
+            padding: 22px 16px;
             text-align: center;
             margin-top: 12px;
-            border: 1.5px solid transparent;
+            border: 1px solid #1E293B;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
             transition: all 0.2s ease;
         }
         .result-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
-            letter-spacing: 0.5px;
-            color: #A0AEC0;
+            letter-spacing: 1px;
+            color: var(--text-muted);
         }
         .result-apr {
-            font-size: 42px;
-            font-weight: bold;
+            font-size: 46px;
+            font-weight: 900;
             color: var(--accent-green);
             margin: 6px 0;
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
         }
         .result-note {
             font-size: 12px;
             color: var(--text-muted);
         }
 
-        /* Error States */
+        /* Interactive Danger Warning Layout Override */
         .result-panel.error {
-            background-color: #FFF5F5;
-            border-color: #FEB2B2;
+            background-color: var(--error-bg);
+            border-color: var(--error-red);
+            box-shadow: none;
         }
-        .result-panel.error .result-title, .result-panel.error .result-note, .result-panel.error .result-apr {
-            color: #C53030;
+        .result-panel.error .result-title { color: #FECACA; }
+        .result-panel.error .result-note { color: #FCA5A5; }
+        .result-panel.error .result-apr {
+            color: #FFFFFF;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
         }
 
         .footnote {
             font-size: 11px;
             color: var(--text-muted);
             text-align: center;
-            line-height: 1.4;
-            margin-top: 32px;
+            line-height: 1.5;
+            margin-top: 36px;
+            border-top: 1px solid #1F2937;
+            padding-top: 16px;
         }
     </style>
 </head>
@@ -175,19 +191,19 @@
 <div class="responsive-wrapper">
     <div class="app-container">
         
-        <!-- Corporate Identification -->
+        <!-- Premium Corporate Identity -->
         <div class="branding-header">
             <div class="brand-main">
-                <span style="font-size: 22px;">🏛️</span> MUTUALofOMAHA
+                <span style="font-size: 20px; color: var(--accent-green);">🏛️</span> MUTUALofOMAHA
             </div>
             <div class="brand-sub">MORTGAGE</div>
         </div>
 
         <div class="app-title">Credit Card APR Finder</div>
 
-        <!-- Metric 1: Total Balance -->
+        <!-- Metric Module 1: Total Balance -->
         <div class="input-card">
-            <div class="input-label">Total Credit Card Balance ($)</div>
+            <div class="input-label">Total Credit Card Balance</div>
             <div class="input-value" id="balanceDisplay">$5,000</div>
             <input type="range" id="balanceSlider" class="slider-input" min="500" max="20000" step="100" value="5000">
             <div class="slider-footer">
@@ -196,9 +212,9 @@
             </div>
         </div>
 
-        <!-- Metric 2: Minimum Monthly Payment -->
+        <!-- Metric Module 2: Minimum Monthly Payment -->
         <div class="input-card">
-            <div class="input-label">Minimum Payment Required ($)</div>
+            <div class="input-label">Minimum Monthly Payment</div>
             <div class="input-value" id="paymentDisplay">$150</div>
             <input type="range" id="paymentSlider" class="slider-input" min="25" max="1000" step="5" value="150">
             <div class="slider-footer">
@@ -207,14 +223,14 @@
             </div>
         </div>
 
-        <!-- Output Metric Terminal Box -->
+        <!-- Output Terminal Window -->
         <div class="result-panel" id="resultCard">
             <div class="result-title" id="resultTitle">ESTIMATED ANNUAL APR</div>
             <div class="result-apr" id="aprDisplay">24.00%</div>
             <div class="result-note" id="resultNote">based on the current inputs</div>
         </div>
 
-        <!-- Footnote Asset Signature Details -->
+        <!-- Mandatory Footnote Attribution -->
         <div class="footnote">
             * Created by Jeff Homolak. Assumptions include a 1% balance + interest formula.
         </div>
@@ -239,11 +255,11 @@
         const balance = parseFloat(balanceSlider.value);
         const payment = parseFloat(paymentSlider.value);
 
-        // UI Text updates
+        // Core UI Dashboard text updates
         balanceDisplay.innerText = formatCurrency(balance);
         paymentDisplay.innerText = formatCurrency(payment);
 
-        // Core Mathematical Extraction Layer
+        // Reverse-engineered standard ledger arithmetic 
         const principalDeduction = balance * 0.01;
         const interestDifference = payment - principalDeduction;
 
