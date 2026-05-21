@@ -49,25 +49,6 @@
             text-align: center;
             margin-bottom: 28px;
         }
-        .brand-main {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .brand-sub {
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--accent-green);
-            letter-spacing: 5px;
-            margin: 4px 0 0 0;
-            text-indent: 5px;
-        }
 
         .app-title {
             font-size: 22px;
@@ -160,6 +141,7 @@
         .result-note {
             font-size: 12px;
             color: var(--text-muted);
+            margin-bottom: 8px;
         }
 
         /* Interactive Danger Warning Layout Override */
@@ -173,6 +155,42 @@
         .result-panel.error .result-apr {
             color: #FFFFFF;
             text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Payoff Amortization Module Layout */
+        .payoff-divider {
+            border-top: 1px dashed #334155;
+            margin: 14px 0;
+            padding-top: 14px;
+        }
+        .payoff-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .payoff-block {
+            flex: 1;
+            background: #111827;
+            padding: 12px 8px;
+            border-radius: 10px;
+            border: 1px solid #1E293B;
+        }
+        .payoff-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .payoff-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+        .payoff-value.highlight {
+            color: #F59E0B; /* Warning amber color for interest costs */
         }
 
         .footnote {
@@ -191,11 +209,11 @@
 <div class="responsive-wrapper">
     <div class="app-container">
         
-        <!-- Premium Corporate Identity -->
-            <div class="branding-header" style="text-align": center; margin-bottom 28px; padding: 0 8px;"></div>
-                        <img src="moo_mortgage_horiz_654c.webp"
-                            alt="Mutual of Omaha Mortgage VII Hills"
-                            style="width: 100%; max-width: 563px; height: auto; max-height: 116px; object-fit: contain; display: block; margin: 0 auto;">
+        <!-- Premium Corporate Identity (Fixed broken tag structure here) -->
+        <div class="branding-header">
+            <img src="moo_mortgage_horiz_654c.webp"
+                 alt="Mutual of Omaha Mortgage VII Hills"
+                 style="width: 100%; max-width: 563px; height: auto; max-height: 116px; object-fit: contain; display: block; margin: 0 auto;">
         </div>
 
         <div class="app-title">Credit Card APR Finder</div>
@@ -227,6 +245,21 @@
             <div class="result-title" id="resultTitle">ESTIMATED ANNUAL APR</div>
             <div class="result-apr" id="aprDisplay">24.00%</div>
             <div class="result-note" id="resultNote">based on the current inputs</div>
+            
+            <!-- Payoff Timeline Module Section -->
+            <div class="payoff-divider" id="payoffSection">
+                <div class="result-title">Minimum Payment Payoff Outlook</div>
+                <div class="payoff-grid">
+                    <div class="payoff-block">
+                        <div class="payoff-label">Time To Pay Off</div>
+                        <div class="payoff-value" id="timeDisplay">--</div>
+                    </div>
+                    <div class="payoff-block">
+                        <div class="payoff-label">Total Out of Pocket</div>
+                        <div class="payoff-value highlight" id="totalPaidDisplay">--</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Mandatory Footnote Attribution -->
@@ -245,6 +278,11 @@
     const resultCard = document.getElementById('resultCard');
     const aprDisplay = document.getElementById('aprDisplay');
     const resultNote = document.getElementById('resultNote');
+    
+    // New dynamic DOM handles
+    const payoffSection = document.getElementById('payoffSection');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const totalPaidDisplay = document.getElementById('totalPaidDisplay');
 
     function formatCurrency(val) {
         return '$' + parseFloat(val).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -267,15 +305,74 @@
             aprDisplay.innerText = calculatedApr.toFixed(2) + '%';
             resultNote.innerText = 'based on the current inputs';
             resultCard.classList.remove('error');
+            payoffSection.style.opacity = "1";
+            
+            // Run Payoff Simulation Loop
+            runPayoffSimulation(balance, calculatedApr, payment);
         } else {
             aprDisplay.innerText = 'Input Low';
             resultNote.innerText = 'Increase minimum payment';
             resultCard.classList.add('error');
+            
+            // Clear stats on error
+            timeDisplay.innerText = "--";
+            totalPaidDisplay.innerText = "--";
         }
+    }
+
+    function runPayoffSimulation(startingBalance, apr, constantMinPayment) {
+        let currentBalance = startingBalance;
+        const monthlyRate = (apr / 100) / 12;
+        let totalMonths = 0;
+        let totalPaid = 0;
+        
+        // Safety lock to prevent infinite tracking calculations loops 
+        while (currentBalance > 0 && totalMonths < 600) { 
+            const monthlyInterest = currentBalance * monthlyRate;
+            
+            // Standard bank minimum calculation: 1% of current balance + accrued interest
+            let dynamicMinPayment = (currentBalance * 0.01) + monthlyInterest;
+            
+            // Ensure payment doesn't drop beneath standard regulatory floors (typically $25)
+            if (dynamicMinPayment < 25) dynamicMinPayment = 25;
+            
+            // If user's selected slider payment is higher than the calculated formula minimum, 
+            // we assume they continue paying that fixed amount to simulate accurate timeline.
+            let actualPayment = Math.max(constantMinPayment, dynamicMinPayment);
+            
+            // Handle last payment truncation
+            if (actualPayment >= (currentBalance + monthlyInterest)) {
+                actualPayment = currentBalance + monthlyInterest;
+                currentBalance = 0;
+            } else {
+                currentBalance = (currentBalance + monthlyInterest) - actualPayment;
+            }
+            
+            totalPaid += actualPayment;
+            totalMonths++;
+        }
+
+        // Format timeline text strings
+        const years = Math.floor(totalMonths / 12);
+        const months = totalMonths % 12;
+        let timelineText = "";
+        
+        if (years > 0) {
+            timelineText += years + " yr" + (years > 1 ? "s " : " ");
+        }
+        if (months > 0 || years === 0) {
+            timelineText += months + " mo" + (months !== 1 ? "s" : "");
+        }
+
+        timeDisplay.innerText = timelineText;
+        totalPaidDisplay.innerText = formatCurrency(totalPaid);
     }
 
     balanceSlider.addEventListener('input', calculateWebAPR);
     paymentSlider.addEventListener('input', calculateWebAPR);
+    
+    // Initialize on initial page load
+    calculateWebAPR();
 </script>
 
 </body>
