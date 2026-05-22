@@ -304,15 +304,16 @@
     const totalPaidDisplay = document.getElementById('totalPaidDisplay');
 
     function formatCurrency(val) {
-        return '$' + parseFloat(val).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return '$' + parseFloat(val).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     function calculateWebAPR() {
         const balance = parseFloat(balanceSlider.value);
         const payment = parseFloat(paymentSlider.value);
 
-        balanceDisplay.innerText = formatCurrency(balance);
-        paymentDisplay.innerText = formatCurrency(payment);
+        // Keep labels rounded clean for UX sliders
+        balanceDisplay.innerText = '$' + balance.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        paymentDisplay.innerText = '$' + payment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         const principalDeduction = balance * 0.01;
         const interestDifference = payment - principalDeduction;
@@ -324,7 +325,6 @@
             resultCard.classList.remove('error');
             payoffSection.style.opacity = "1";
             
-            // Run the standard Bankrate replication simulation
             runPayoffSimulation(balance, calculatedApr);
         } else {
             aprDisplay.innerText = 'ERROR';
@@ -336,22 +336,23 @@
         }
     }
 
-    // Replicates Bankrate calculation logic exactly
+    // Replicates Bankrate calculation logic perfectly
     function runPayoffSimulation(startingBalance, apr) {
         let currentBalance = startingBalance;
         const monthlyRate = (apr / 100) / 12;
         let totalMonths = 0;
         let totalPaid = 0;
         
-        // Loop runs until balance is zeroed out or hit fallback limit
         while (currentBalance > 0.01 && totalMonths < 1200) { 
             const monthlyInterest = currentBalance * monthlyRate;
             
-            // 1. Bankrate dynamic method: minimum payment shrinks as a percentage of the remaining balance
-            // Most major banks use a 2% to 2.5% structural calculation multiplier
-            let dynamicMinPayment = currentBalance * 0.025; 
+            // Replicating standard industry rule: Max of (1% of balance + interest) OR (2.5% of balance)
+            let standardFormula = (currentBalance * 0.01) + monthlyInterest;
+            let percentFormula = currentBalance * 0.025;
             
-            // 2. Enforce the hard floor calculation minimum (typically $25)
+            let dynamicMinPayment = Math.max(standardFormula, percentFormula);
+            
+            // Enforce the standard banking $25 floor limit
             if (dynamicMinPayment < 25) {
                 dynamicMinPayment = 25;
             }
@@ -359,7 +360,6 @@
             let actualPayment = dynamicMinPayment;
             const totalOwedThisMonth = currentBalance + monthlyInterest;
             
-            // Handle edge case where remaining balance + interest is less than the floor limit
             if (actualPayment >= totalOwedThisMonth) {
                 actualPayment = totalOwedThisMonth;
                 currentBalance = 0;
@@ -371,7 +371,6 @@
             totalMonths++;
         }
 
-        // Convert the structural month pool into clear Years and Months layout
         const years = Math.floor(totalMonths / 12);
         const months = totalMonths % 12;
         let timelineText = "";
