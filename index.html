@@ -264,7 +264,7 @@
 
         <!-- Mandatory Footnote Attribution -->
         <div class="footnote">
-            * Created by Jeff Homolak. Assumptions include a 1% balance + interest formula.
+            * Created by Jeff Homolak. This is meant to be an estimation and not fact. Late fees and extra charges may skew the dataset. Assumptions include a 1% balance + interest formula.
         </div>
 
     </div>
@@ -310,7 +310,7 @@
             // Run Payoff Simulation Loop
             runPayoffSimulation(balance, calculatedApr, payment);
         } else {
-            aprDisplay.innerText = 'Input Low';
+            aprDisplay.innerText = 'Rate Too Low. Adjust Paramaters';
             resultNote.innerText = 'Increase minimum payment';
             resultCard.classList.add('error');
             
