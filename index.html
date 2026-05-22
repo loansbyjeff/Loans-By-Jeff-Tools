@@ -49,11 +49,31 @@
             text-align: center;
             margin-bottom: 28px;
         }
+        .brand-main {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main); /* Standard white corporate text */
+            letter-spacing: -0.5px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .brand-sub {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--accent-green); /* Vivid sub-banking green */
+            letter-spacing: 5px;
+            margin: 4px 0 0 0;
+            text-indent: 5px;
+        }
 
+        /* Updated App Title Class to handle your requested Green Header color */
         .app-title {
             font-size: 22px;
             font-weight: bold;
-            color: var(--text-main);
+            color: var(--accent-green); /* Changed from text-main to accent-green */
             text-align: center;
             margin: 0 0 24px 0;
         }
@@ -209,13 +229,14 @@
 <div class="responsive-wrapper">
     <div class="app-container">
         
-        <!-- Premium Corporate Identity (Fixed broken tag structure here) -->
+        <!-- Premium Corporate Identity (Containers Cleanly Closed Now) -->
         <div class="branding-header">
             <div class="brand-main">
                 <span style="font-size: 30px; color: var(--accent-green);">🏛️</span> Mutual VII Hills
             </div>
             <div class="brand-sub">MORTGAGE</div>
-<p></p>
+        </div>
+
         <div class="app-title">Credit Card APR Calculator</div>
 
         <!-- Metric Module 1: Total Balance -->
@@ -279,7 +300,6 @@
     const aprDisplay = document.getElementById('aprDisplay');
     const resultNote = document.getElementById('resultNote');
     
-    // New dynamic DOM handles
     const payoffSection = document.getElementById('payoffSection');
     const timeDisplay = document.getElementById('timeDisplay');
     const totalPaidDisplay = document.getElementById('totalPaidDisplay');
@@ -292,11 +312,9 @@
         const balance = parseFloat(balanceSlider.value);
         const payment = parseFloat(paymentSlider.value);
 
-        // Core UI Dashboard text updates
         balanceDisplay.innerText = formatCurrency(balance);
         paymentDisplay.innerText = formatCurrency(payment);
 
-        // Reverse-engineered standard ledger arithmetic 
         const principalDeduction = balance * 0.01;
         const interestDifference = payment - principalDeduction;
 
@@ -307,14 +325,12 @@
             resultCard.classList.remove('error');
             payoffSection.style.opacity = "1";
             
-            // Run Payoff Simulation Loop
             runPayoffSimulation(balance, calculatedApr, payment);
         } else {
-            aprDisplay.innerText = 'Rate Too Low. Adjust Paramaters';
-            resultNote.innerText = 'Increase minimum payment';
+            aprDisplay.innerText = 'ERROR';
+            resultNote.innerText = 'Rate too low. Increase minimum payment';
             resultCard.classList.add('error');
             
-            // Clear stats on error
             timeDisplay.innerText = "--";
             totalPaidDisplay.innerText = "--";
         }
@@ -326,21 +342,13 @@
         let totalMonths = 0;
         let totalPaid = 0;
         
-        // Safety lock to prevent infinite tracking calculations loops 
         while (currentBalance > 0 && totalMonths < 600) { 
             const monthlyInterest = currentBalance * monthlyRate;
-            
-            // Standard bank minimum calculation: 1% of current balance + accrued interest
             let dynamicMinPayment = (currentBalance * 0.01) + monthlyInterest;
             
-            // Ensure payment doesn't drop beneath standard regulatory floors (typically $25)
             if (dynamicMinPayment < 25) dynamicMinPayment = 25;
-            
-            // If user's selected slider payment is higher than the calculated formula minimum, 
-            // we assume they continue paying that fixed amount to simulate accurate timeline.
             let actualPayment = Math.max(constantMinPayment, dynamicMinPayment);
             
-            // Handle last payment truncation
             if (actualPayment >= (currentBalance + monthlyInterest)) {
                 actualPayment = currentBalance + monthlyInterest;
                 currentBalance = 0;
@@ -352,7 +360,6 @@
             totalMonths++;
         }
 
-        // Format timeline text strings
         const years = Math.floor(totalMonths / 12);
         const months = totalMonths % 12;
         let timelineText = "";
@@ -371,7 +378,6 @@
     balanceSlider.addEventListener('input', calculateWebAPR);
     paymentSlider.addEventListener('input', calculateWebAPR);
     
-    // Initialize on initial page load
     calculateWebAPR();
 </script>
 
