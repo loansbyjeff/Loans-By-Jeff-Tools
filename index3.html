@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blended Rate Debt Calculator</title>
+    <style>
+        :root {
+            --bg-dark: #0F172A;          /* Deep premium slate banking background */
+            --panel-bg: #1E293B;         /* Dark grey container panels */
+            --accent-green: #10B981;     /* High-contrast neon-emerald branding green */
+            --text-main: #F8FAFC;        /* Crisp white for primary headings */
+            --text-muted: #94A3B8;       /* Soft grey for descriptive labels */
+            --result-dark: #020617;      /* Solid dark obsidian for the output window */
+            --error-red: #EF4444;        /* Crimson warning accent */
+            --error-bg: #7F1D1D;         /* Deep burgundy warning panel fill */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Aligns container to the top to handle downward growth gracefully */
+            min-height: 100vh;
+        }
+
+        .responsive-wrapper {
+            width: 100%;
+            max-width: 450px;
+            background: #111827;         /* Sleek smartphone-style container */
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            margin: 32px 16px;           /* Added top/bottom margin for breathing room when long */
+            box-sizing: border-box;
+            border: 1px solid #1F2937;
+        }
+
+        .app-container {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Corporate Identity Header Styling */
+        .branding-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .brand-main {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .brand-sub {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--accent-green);
+            letter-spacing: 5px;
+            margin: 4px 0 0 0;
+            text-indent: 5px;
+        }
+
+        .app-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent-green);
+            text-align: center;
+            margin: 0 0 24px 0;
+        }
+
+        /* Dynamic Debt Rows List Styles - No limits, wraps naturally down the screen */
+        #debtContainer {
+            margin-bottom: 16px;
+        }
+
+        /* Modernized Banking Dashboard Modules */
+        .debt-row {
+            background-color: var(--panel-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #334155;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 0.8fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .debt-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .debt-field label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .debt-field select, .debt-field input {
+            background: #0F172A;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .debt-field select:focus, .debt-field input:focus {
+            border-color: var(--accent-green);
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px 4px 0 4px;
+            transition: color 0.1s;
+        }
+
+        .delete-btn:hover {
+            color: var(--error-red);
+        }
+
+        /* Dynamic Interface Control Buttons */
+        .btn-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            background: #1E293B;
+            border: 1px solid #475569;
+            color: var(--text-main);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .action-btn:hover {
+            background: #334155;
+        }
+
+        .action-btn.primary {
+            background: #065F46;
+            border-color: var(--accent-green);
+            color: #A7F3D0;
+        }
+
+        .action-btn.primary:hover {
+            background: #047857;
+        }
+
+        /* Digital Statement Output Terminal Box */
+        .result-panel {
+            background-color: var(--result-dark);
+            border-radius: 16px;
+            padding: 22px 16px;
+            text-align: center;
+            margin-top: 12px;
+            border: 1px solid #1E293B;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        .result-title {
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .result-apr {
+            font-size: 46px;
+            font-weight: 900;
+            color: var(--accent-green);
+            margin: 6px 0;
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+        .result-note {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        /* Payoff Amortization Module Layout */
+        .payoff-divider {
+            border-top: 1px dashed #334155;
+            margin: 14px 0;
+            padding-top: 14px;
+        }
+        .payoff-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .payoff-block {
+            flex: 1;
+            background: #111827;
+            padding: 12px 8px;
+            border-radius: 10px;
+            border: 1px solid #1E293B;
+        }
+        .payoff-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .payoff-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+        .payoff-value.highlight {
+            color: #F59E0B; /* Opportunity amber color for pitch framework */
+        }
+
+        .footnote {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 36px;
+            border-top: 1px solid #1F2937;
+            padding-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="responsive-wrapper">
+    <div class="app-container">
+        
+        <!-- Premium Corporate Identity -->
+        <div class="branding-header">
+            <div class="brand-main">
+                <span style="font-size: 30px; color: var(--accent-green);">🏛️</span> Mutual VII Hills
+            </div>
+            <div class="brand-sub">MORTGAGE</div>
+        </div>
+
+        <div class="app-title">Blended Rate Calculator</div>
+
+        <!-- Dynamic Target Area for Debt Rows (Scroll parameters removed) -->
+        <div id="debtContainer"></div>
+
+        <!-- Control Area -->
+        <div class="btn-container">
+            <button class="action-btn" onclick="addDebtRow()">＋ Add Liability</button>
+            <button class="action-btn primary" onclick="calculateBlendedRate()">⚡ Calculate</button>
+        </div>
+
+        <!-- Output Terminal Window -->
+        <div class="result-panel" id="resultCard">
+            <div class="result-title" id="resultTitle">TRUE BLENDED RATE</div>
+            <div class="result-apr" id="aprDisplay">0.00%</div>
+            <div class="result-note" id="resultNote">weighted average across liabilities</div>
+            
+            <!-- Pitch Strategy Metric Module Section -->
+            <div class="payoff-divider" id="payoffSection">
+                <div class="result-title">Consolidation Opportunity</div>
+                <div class="payoff-grid">
+                    <div class="payoff-block">
+                        <div class="payoff-label">Total Debt Pool</div>
+                        <div class="payoff-value" id="totalBalanceDisplay">$0</div>
+                    </div>
+                    <div class="payoff-block">
+                        <div class="payoff-label">Target to Save</div>
+                        <div class="payoff-value highlight" id="targetRateDisplay">Beat 0.00%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mandatory Footnote Attribution -->
+        <div class="footnote">
+            * Created by Jeff Homolak. This is meant to be an estimation and not fact. Calculations reflect a weighted average interest rate framework across all documented liabilities. This tool provides structural estimation for mortgage analysis, not a firm commitment to lend.
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Clean default profile layout to guide entry
+    const defaultDebts = [
+        { type: 'mortgage', balance: 250000, rate: 3.5 },
+        { type: 'credit_card', balance: 12000, rate: 23.99 },
+        { type: 'auto_loan', balance: 18000, rate: 7.2 }
+    ];
+
+    function createRowElement(data = { type: 'credit_card', balance: '', rate: '' }) {
+        const div = document.createElement('div');
+        div.className = 'debt-row';
+        div.innerHTML = `
+            <div class="debt-field">
+                <label>Type</label>
+                <select class="debt-type">
+                    <option value="mortgage" ${data.type === 'mortgage' ? 'selected' : ''}>Mortgage</option>
+                    <option value="heloc" ${data.type === 'heloc' ? 'selected' : ''}>HELOC</option>
+                    <option value="auto_loan" ${data.type === 'auto_loan' ? 'selected' : ''}>Auto Loan</option>
+                    <option value="credit_card" ${data.type === 'credit_card' ? 'selected' : ''}>Credit Card</option>
+                    <option value="student_loan" ${data.type === 'student_loan' ? 'selected' : ''}>Student</option>
+                    <option value="personal" ${data.type === 'personal' ? 'selected' : ''}>Personal</option>
+                </select>
+            </div>
+            <div class="debt-field">
+                <label>Balance ($)</label>
+                <input type="number" class="debt-balance" placeholder="0" value="${data.balance}" oninput="calculateBlendedRate()">
+            </div>
+            <div class="debt-field">
+                <label>Rate (%)</label>
+                <input type="number" step="0.01" class="debt-rate" placeholder="0.00" value="${data.rate}" oninput="calculateBlendedRate()">
+            </div>
+            <button class="delete-btn" onclick="this.parentElement.remove(); calculateBlendedRate();">✕</button>
+        `;
+        return div;
+    }
+
+    function addDebtRow() {
+        const container = document.getElementById('debtContainer');
+        container.appendChild(createRowElement());
+    }
+
+    function formatCurrency(val) {
+        return '$' + parseFloat(val).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function calculateBlendedRate() {
+        const rows = document.querySelectorAll('.debt-row');
+        let totalWeightedInterest = 0;
+        let totalDebtPool = 0;
+
+        rows.forEach(row => {
+            const balance = parseFloat(row.querySelector('.debt-balance').value) || 0;
+            const rate = parseFloat(row.querySelector('.debt-rate').value) || 0;
+
+            if (balance > 0 && rate > 0) {
+                totalDebtPool += balance;
+                totalWeightedInterest += (balance * (rate / 100));
+            }
+        });
+
+        const aprDisplay = document.getElementById('aprDisplay');
+        const totalBalanceDisplay = document.getElementById('totalBalanceDisplay');
+        const targetRateDisplay = document.getElementById('targetRateDisplay');
+
+        if (totalDebtPool > 0) {
+            const calculatedBlendedRate = (totalWeightedInterest / totalDebtPool) * 100;
+            
+            aprDisplay.innerText = calculatedBlendedRate.toFixed(3) + '%';
+            totalBalanceDisplay.innerText = formatCurrency(totalDebtPool);
+            targetRateDisplay.innerText = `Below ${calculatedBlendedRate.toFixed(2)}%`;
+        } else {
+            aprDisplay.innerText = '0.00%';
+            totalBalanceDisplay.innerText = '$0';
+            targetRateDisplay.innerText = 'Beat 0.00%';
+        }
+    }
+
+    // Initialize layout with defaults on page drop
+    window.onload = function() {
+        const container = document.getElementById('debtContainer');
+        defaultDebts.forEach(debt => {
+            container.appendChild(createRowElement(debt));
+        });
+        calculateBlendedRate();
+    };
+</script>
+
+</body>
+</html>
